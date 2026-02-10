@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Healthcare Risk Predictor</title>
+</head>
+<body>
+  <h2>Healthcare Decision Support System</h2>
+
+  <input id="age" placeholder="Age"><br><br>
+  <input id="hr" placeholder="Heart Rate"><br><br>
+  <input id="bp" placeholder="Blood Pressure"><br><br>
+
+  <button onclick="predict()">Predict Risk</button>
+
+  <h3 id="output"></h3>
+
+  <script>
+    function predict() {
+      fetch("PASTE_CLOUD_RUN_URL/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          age: Number(age.value),
+          heart_rate: Number(hr.value),
+          blood_pressure: Number(bp.value)
+        })
+      })
+      .then(res => res.json())
+      .then(data => output.innerText = data.prediction);
+    }
+  </script>
+</body>
+</html>
