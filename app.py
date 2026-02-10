@@ -1,39 +1,50 @@
-import os
+from flask import Flask, request, render_template_string
 import joblib
 import numpy as np
-from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Load ML model once at startup
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "healthcare_model.pkl")
-model = joblib.load(MODEL_PATH)
+# Load model once at startup
+model = joblib.load("healthcare_model.pkl")
 
-@app.route("/")
+HTML_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Healthcare Risk Prediction</title>
+</head>
+<body>
+    <h2>Healthcare Risk Prediction</h2>
+
+    <form method="post">
+        Age: <input type="number" name="age" required><br><br>
+        Heart Rate: <input type="number" name="heart_rate" required><br><br>
+        Blood Pressure: <input type="number" name="blood_pressure" required><br><br>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if result %}
+        <h3>Prediction: {{ result }}</h3>
+    {% endif %}
+</body>
+</html>
+"""
+
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return "Healthcare ML API running"
+    result = None
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    data = request.get_json()
+    if request.method == "POST":
+        age = int(request.form["age"])
+        heart_rate = int(request.form["heart_rate"])
+        blood_pressure = int(request.form["blood_pressure"])
 
-    # Basic validation
-    required_fields = ["age", "heart_rate", "blood_pressure"]
-    for field in required_fields:
-        if field not in data:
-            return jsonify({"error": f"Missing field: {field}"}), 400
+        features = np.array([[age, heart_rate, blood_pressure]])
+        prediction = model.predict(features)[0]
 
-    features = np.array([[
-        data["age"],
-        data["heart_rate"],
-        data["blood_pressure"]
-    ]])
+        result = "High Risk" if prediction == 1 else "Low Risk"
 
-    prediction = model.predict(features)[0]
-    result = "High Risk" if prediction == 1 else "Low Risk"
-
-    return jsonify({"prediction": result})
+    return render_template_string(HTML_PAGE, result=result)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
