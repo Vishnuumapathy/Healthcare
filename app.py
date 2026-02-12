@@ -1,34 +1,26 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template
 import joblib
 import numpy as np
+import pandas as pd
+import os
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder="frontend",
+    static_folder="Style",
+    static_url_path="/static"
+)
 
-# Load model once at startup
+# Load ML model
 model = joblib.load("healthcare_model.pkl")
 
-HTML_PAGE = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Healthcare Risk Prediction</title>
-</head>
-<body>
-    <h2>Healthcare Risk Prediction</h2>
+# Load CSV
+data = pd.read_csv("data/patients.csv")
 
-    <form method="post">
-        Age: <input type="number" name="age" required><br><br>
-        Heart Rate: <input type="number" name="heart_rate" required><br><br>
-        Blood Pressure: <input type="number" name="blood_pressure" required><br><br>
-        <button type="submit">Predict</button>
-    </form>
-
-    {% if result %}
-        <h3>Prediction: {{ result }}</h3>
-    {% endif %}
-</body>
-</html>
-"""
+def get_risk_stats():
+    high = int((data["risk"] == 1).sum())
+    low = int((data["risk"] == 0).sum())
+    return high, low
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -44,7 +36,14 @@ def home():
 
         result = "High Risk" if prediction == 1 else "Low Risk"
 
-    return render_template_string(HTML_PAGE, result=result)
+    high, low = get_risk_stats()
+
+    return render_template(
+        "index.html",
+        result=result,
+        high=high,
+        low=low
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,111 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #fdf2e9;
+  margin: 0;
+}
+
+/* PAGE LAYOUT */
+.page-container {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* LEFT PANEL — CHART */
+.chart-panel {
+  width: 360px;
+  height: 500px;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.chart-panel canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* RIGHT PANEL — FORM */
+.form-panel {
+  width: 480px;
+  background: white;
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+h2 {
+  color: #c0392b;
+}
+
+input {
+  width: 80%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 5px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: #e67e22;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background: #c0392b;
+}
+
+.result {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: white;
+  padding: 25px;
+  width: 420px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.modal-box.high {
+  border-left: 6px solid #c0392b;
+  
+}
+
+.modal-box.low {
+  border-left: 6px solid #27ae60;
+}
+
+.modal-box ul {
+  text-align: left;
+}
+
+.modal-box button {
+  margin-top: 15px;
+}

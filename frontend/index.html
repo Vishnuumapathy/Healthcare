@@ -1,33 +1,100 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Healthcare Risk Predictor</title>
+  <title>Healthcare Risk Prediction</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
-  <h2>Healthcare Decision Support System</h2>
+  <div class="page-container">
 
-  <input id="age" placeholder="Age"><br><br>
-  <input id="hr" placeholder="Heart Rate"><br><br>
-  <input id="bp" placeholder="Blood Pressure"><br><br>
+    <!-- LEFT: Chart -->
+    <div class="chart-panel">
+      <h3>Risk Distribution (Last Month)</h3>
+      <canvas id="riskChart"></canvas>
+    </div>
 
-  <button onclick="predict()">Predict Risk</button>
+    <!-- RIGHT: Form -->
+    <div class="form-panel">
+      <h2>Healthcare Risk Prediction</h2>
 
-  <h3 id="output"></h3>
+      <form method="post">
+        <input type="number" name="age" placeholder="Age" required>
+        <input type="number" name="heart_rate" placeholder="Heart Rate" required>
+        <input type="number" name="blood_pressure" placeholder="Blood Pressure" required>
+        <button type="submit">Predict</button>
+      </form>
+
+      {% if result %}
+      <div class="result {{ result|lower }}">
+        {{ result }}
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
 
   <script>
-    function predict() {
-      fetch("PASTE_CLOUD_RUN_URL/predict", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          age: Number(age.value),
-          heart_rate: Number(hr.value),
-          blood_pressure: Number(bp.value)
-        })
-      })
-      .then(res => res.json())
-      .then(data => output.innerText = data.prediction);
+  const high = {{ high }};
+  const low = {{ low }};
+
+  const ctx = document.getElementById("riskChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["High Risk", "Low Risk"],
+      datasets: [{
+        data: [high, low],
+        backgroundColor: ["#c0392b", "#e67e22"]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
     }
-  </script>
+  });
+
+  function closeModal() {
+    document.querySelector(".modal-overlay").style.display = "none";
+  }
+</script>
+
+
+  {% if result %}
+  <div class="modal-overlay">
+    <div class="modal-box {{ result|lower }}">
+      <h2>{{ result }}</h2>
+
+      {% if result == "High Risk" %}
+      <p>
+        Suggested Action:
+      <ul>
+        <li>Immediate ECG monitoring</li>
+        <li>Check oxygen saturation</li>
+        <li>Prepare emergency medication</li>
+        <li>Consult senior physician</li>
+      </ul>
+      </p>
+      {% else %}
+      <p>
+        Suggested Action:
+      <ul>
+        <li>Routine observation</li>
+        <li>Re-check vitals after 30 minutes</li>
+        <li>Maintain hydration</li>
+        <li>No emergency intervention needed</li>
+      </ul>
+      </p>
+      {% endif %}
+
+      <button onclick="closeModal()">Close</button>
+    </div>
+  </div>
+  {% endif %}
+
 </body>
+
 </html>
